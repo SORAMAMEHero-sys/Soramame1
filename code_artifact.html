@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ブレロ大戦争 - Brainrot Battle</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Mochiy+Pop+One&family=Zen+Maru+Gothic:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        body {
+            font-family: 'Zen Maru Gothic', sans-serif;
+            background-color: #0d0f18;
+            color: #ffffff;
+            overflow: hidden;
+        }
+        .font-pop {
+            font-family: 'Mochiy Pop One', sans-serif;
+        }
+        .btn-battle {
+            background: linear-gradient(180deg, #ffd000 0%, #ff8800 100%);
+            border: 4px solid #fff;
+            box-shadow: 0 6px 0 #b34700, 0 10px 15px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0 #000;
+        }
+        .btn-battle:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b34700, 0 5px 10px rgba(0,0,0,0.5);
+        }
+        .btn-purple {
+            background: linear-gradient(180deg, #d846ff 0%, #8000ff 100%);
+            border: 4px solid #fff;
+            box-shadow: 0 6px 0 #4a0099, 0 10px 15px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0 #000;
+        }
+        .btn-purple:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #4a0099, 0 5px 10px rgba(0,0,0,0.5);
+        }
+        .btn-blue {
+            background: linear-gradient(180deg, #00d2ff 0%, #0066ff 100%);
+            border: 4px solid #fff;
+            box-shadow: 0 6px 0 #003399, 0 10px 15px rgba(0,0,0,0.5);
+            text-shadow: 2px 2px 0 #000;
+        }
+        .btn-blue:active {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #003399, 0 5px 10px rgba(0,0,0,0.5);
+        }
+        .cat-frame {
+            border: 3px solid #ffcc00;
+            background: radial-gradient(circle, #3a2060 0%, #150b28 100%);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ffaa00;
+            border-radius: 4px;
+        }
+        .pulse-glow {
+            animation: pulseGlow 1.5s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px #ff00ff; }
+            100% { box-shadow: 0 0 25px #00ffff, 0 0 35px #ff00ff; }
+        }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-center items-center select-none bg-slate-950">
+
+    <!-- Main Game Frame -->
+    <div id="game-container" class="relative w-full max-w-5xl h-full md:h-[650px] bg-slate-900 md:rounded-3xl border-0 md:border-4 border-yellow-400 overflow-hidden flex flex-col shadow-2xl">
+        
+        <!-- Header Bar -->
+        <header id="top-bar" class="w-full bg-slate-950/90 border-b-2 border-yellow-500/50 px-4 py-2 flex justify-between items-center z-20">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center bg-slate-800 px-3 py-1 rounded-full border border-yellow-400">
+                    <i class="fa-solid fa-bolt text-yellow-400 mr-2"></i>
+                    <span class="text-xs text-yellow-200">XP:</span>
+                    <span id="user-xp" class="font-bold text-yellow-300 ml-1">0</span>
+                </div>
+                <div class="flex items-center bg-slate-800 px-3 py-1 rounded-full border border-purple-400">
+                    <i class="fa-solid fa-gem text-purple-400 mr-2"></i>
+                    <span class="text-xs text-purple-200">GEMS:</span>
+                    <span id="user-gems" class="font-bold text-purple-300 ml-1">100</span>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button id="sound-toggle" class="bg-slate-800 hover:bg-slate-700 text-yellow-400 w-9 h-9 rounded-full flex items-center justify-center border border-yellow-500">
+                    <i class="fa-solid fa-volume-high" id="sound-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Screen Content Area -->
+        <div id="screen-area" class="relative flex-1 w-full h-full overflow-hidden">
+
+            <!-- 1. TITLE SCREEN -->
+            <div id="screen-title" class="absolute inset-0 flex flex-col items-center justify-between p-6 bg-gradient-to-b from-indigo-950 via-purple-900 to-slate-950 z-10">
+                <div class="mt-8 text-center flex flex-col items-center">
+                    <div class="inline-block bg-gradient-to-r from-yellow-400 via-pink-500 to-cyan-400 p-1 rounded-2xl transform -rotate-2 shadow-2xl">
+                        <div class="bg-black/90 px-8 py-4 rounded-xl">
+                            <h1 class="font-pop text-4xl sm:text-6xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-pink-400 to-cyan-300 tracking-wider">
+                                ブレロ大戦争
+                            </h1>
+                            <p class="text-xs sm:text-sm text-cyan-300 font-bold tracking-widest mt-1">BRAINROT BATTLE TOWER DEFENSE</p>
+                        </div>
+                    </div>
+                    <p class="text-yellow-200 mt-4 text-xs sm:text-base font-bold bg-purple-900/80 px-4 py-1 rounded-full border border-purple-400 animate-bounce">
+                        🔥 キモかわブレロ軍団で世界を侵略せよ！ 🔥
+                    </p>
+                </div>
+
+                <!-- Animated Character Parade Preview -->
+                <div id="title-parade" class="w-full h-24 relative overflow-hidden my-auto border-y border-yellow-500/30 bg-black/30">
+                    <div id="parade-track" class="absolute whitespace-nowrap flex items-center h-full gap-8">
+                        <!-- Filled dynamically by JS -->
+                    </div>
+                </div>
+
+                <div class="w-full max-w-sm flex flex-col gap-3 mb-6">
+                    <button id="btn-start-game" class="btn-battle w-full py-4 text-2xl font-pop text-white rounded-2xl cursor-pointer">
+                        出撃する！
+                    </button>
+                    <div class="flex gap-3">
+                        <button id="btn-open-upgrade" class="btn-purple flex-1 py-3 text-lg font-pop text-white rounded-xl">
+                            キャラ編成
+                        </button>
+                        <button id="btn-open-gacha" class="btn-blue flex-1 py-3 text-lg font-pop text-white rounded-xl">
+                            ガチャ (召喚)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. STAGE MAP SCREEN -->
+            <div id="screen-map" class="hidden absolute inset-0 flex flex-col p-4 bg-slate-900 z-10 overflow-y-auto">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="font-pop text-2xl text-yellow-400 flex items-center gap-2">
+                        <i class="fa-solid fa-map-location-dot"></i> ステージ選択
+                    </h2>
+                    <button class="btn-back-main bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl border border-white">
+                        戻る
+                    </button>
+                </div>
+
+                <div id="stage-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-3xl mx-auto w-full pb-8">
+                    <!-- Dynamic Stage Cards -->
+                </div>
+            </div>
+
+            <!-- 3. UNIT UPGRADE / DECK SCREEN -->
+            <div id="screen-upgrade" class="hidden absolute inset-0 flex flex-col p-4 bg-slate-950 z-10 overflow-hidden">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-pop text-xl text-yellow-400 flex items-center gap-2">
+                        <i class="fa-solid fa-users-gear"></i> キャラ育成・出撃スロット (最大5体)
+                    </h2>
+                    <button class="btn-back-main bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl border border-white text-sm">
+                        戻る
+                    </button>
+                </div>
+
+                <!-- Active Equipped Slots (Top Deck) -->
+                <div class="bg-purple-950/80 p-3 rounded-2xl border-2 border-purple-500 mb-3">
+                    <p class="text-xs text-purple-300 font-bold mb-2">【出撃デッキ】タップで解除</p>
+                    <div id="deck-slots" class="grid grid-cols-5 gap-2 h-20">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Unit List for Upgrades & Selection -->
+                <div class="flex-1 overflow-y-auto pr-1">
+                    <div id="unit-collection" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. GACHA SHRINE SCREEN -->
+            <div id="screen-gacha" class="hidden absolute inset-0 flex flex-col items-center justify-between p-6 bg-gradient-to-b from-purple-950 via-slate-900 to-black z-10">
+                <div class="flex justify-between items-center w-full">
+                    <h2 class="font-pop text-2xl text-purple-300 flex items-center gap-2">
+                        <i class="fa-solid fa-dice-d20 text-yellow-400"></i> ブレロ召喚所
+                    </h2>
+                    <button class="btn-back-main bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl border border-white text-sm">
+                        戻る
+                    </button>
+                </div>
+
+                <!-- Shrine Visual -->
+                <div class="relative my-auto flex flex-col items-center">
+                    <div id="gacha-orb" class="w-40 h-40 rounded-full bg-gradient-to-tr from-yellow-400 via-purple-600 to-cyan-400 p-1 pulse-glow flex items-center justify-center cursor-pointer transition-transform hover:scale-105">
+                        <div class="w-full h-full bg-slate-950 rounded-full flex flex-col items-center justify-center border-4 border-yellow-300">
+                            <i class="fa-solid fa-brain text-5xl text-purple-400 animate-pulse"></i>
+                            <span class="font-pop text-xs text-yellow-300 mt-2">ミーム神社</span>
+                        </div>
+                    </div>
+                    <div id="gacha-result-modal" class="hidden absolute -top-10 w-72 bg-slate-900 border-4 border-yellow-400 rounded-2xl p-4 shadow-2xl flex flex-col items-center text-center z-20">
+                        <span id="gacha-rarity-badge" class="px-3 py-1 bg-yellow-500 text-black font-pop text-xs rounded-full font-bold mb-2">UR</span>
+                        <h3 id="gacha-result-name" class="font-pop text-xl text-yellow-300">シグマくん</h3>
+                        <p id="gacha-result-desc" class="text-xs text-slate-300 my-2">顎ラインが鋭すぎる伝説の存在。</p>
+                        <button id="btn-close-gacha-res" class="bg-yellow-500 text-black font-bold px-6 py-2 rounded-xl text-sm border border-white mt-2">
+                            入手！
+                        </button>
+                    </div>
+                </div>
+
+                <div class="w-full max-w-md bg-slate-900/80 p-4 rounded-2xl border border-purple-500 flex flex-col items-center gap-3">
+                    <p class="text-xs text-center text-purple-200">100 Gemsで1回召喚！新しいブレロキャラを獲得しよう！</p>
+                    <button id="btn-roll-gacha" class="btn-purple w-full py-3 text-xl font-pop text-white rounded-xl">
+                        1回引く (100 GEMS)
+                    </button>
+                </div>
+            </div>
+
+            <!-- 5. BATTLE CANVAS SCREEN -->
+            <div id="screen-battle" class="hidden absolute inset-0 flex flex-col bg-slate-950 z-10 overflow-hidden">
+                <!-- Battle Header Overlay -->
+                <div class="absolute top-2 left-2 right-2 flex justify-between items-start pointer-events-none z-10">
+                    <!-- Player Base HP Bar -->
+                    <div class="bg-slate-900/90 border-2 border-cyan-400 p-2 rounded-xl w-36 sm:w-48 pointer-events-auto shadow-lg">
+                        <div class="flex justify-between items-center text-xs font-bold text-cyan-300 mb-1">
+                            <span><i class="fa-solid fa-shield"></i> シグマ城</span>
+                            <span id="player-castle-hp-text">1000/1000</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-cyan-500/50">
+                            <div id="player-castle-hp-bar" class="bg-gradient-to-r from-cyan-500 to-blue-400 h-full w-full transition-all"></div>
+                        </div>
+                    </div>
+
+                    <!-- Stage Name Header -->
+                    <div class="bg-black/70 border border-yellow-500/50 px-3 py-1 rounded-full text-center">
+                        <span id="battle-stage-title" class="text-xs font-pop text-yellow-300">STAGE 1</span>
+                    </div>
+
+                    <!-- Enemy Base HP Bar -->
+                    <div class="bg-slate-900/90 border-2 border-red-500 p-2 rounded-xl w-36 sm:w-48 pointer-events-auto shadow-lg">
+                        <div class="flex justify-between items-center text-xs font-bold text-red-400 mb-1">
+                            <span>クリネジ城 <i class="fa-solid fa-skull"></i></span>
+                            <span id="enemy-castle-hp-text">1000/1000</span>
+                        </div>
+                        <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden border border-red-500/50">
+                            <div id="enemy-castle-hp-bar" class="bg-gradient-to-r from-red-600 to-orange-500 h-full w-full transition-all"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Game Canvas -->
+                <canvas id="battle-canvas" class="w-full flex-1 bg-slate-950 cursor-crosshair"></canvas>
+
+                <!-- Battle HUD Bottom Bar -->
+                <div class="w-full bg-slate-950 border-t-2 border-yellow-500 p-2 flex flex-col gap-2 z-10">
+                    <!-- Money Bar & Worker Level / Cannon -->
+                    <div class="flex justify-between items-center px-2">
+                        <!-- Worker Cat / Brainrot $BR Money -->
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center bg-slate-900 px-3 py-1.5 rounded-xl border-2 border-yellow-400">
+                                <i class="fa-solid fa-brain text-pink-400 mr-2 text-lg animate-pulse"></i>
+                                <div>
+                                    <div class="text-[10px] text-yellow-300 font-bold leading-none">脳トレpt ($BR)</div>
+                                    <div class="text-sm font-pop text-yellow-400"><span id="br-current">0</span> / <span id="br-max">100</span></div>
+                                </div>
+                            </div>
+
+                            <!-- Worker Level Up Button -->
+                            <button id="btn-upgrade-worker" class="bg-gradient-to-b from-yellow-400 to-amber-600 text-black border-2 border-white px-3 py-1.5 rounded-xl text-xs font-bold shadow flex flex-col items-center active:scale-95">
+                                <span>ブレロLv UP</span>
+                                <span class="text-[10px] font-mono"><span id="worker-cost">50</span> $BR</span>
+                            </button>
+                        </div>
+
+                        <!-- Brainrot Laser Cannon Button (ブレロ砲) -->
+                        <button id="btn-fire-cannon" class="relative bg-gradient-to-r from-purple-600 to-pink-600 text-white border-2 border-yellow-300 px-4 py-2 rounded-xl text-xs font-pop shadow-lg opacity-50 cursor-not-allowed flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-yellow-300 text-sm"></i>
+                            <span>ブレロ砲</span>
+                            <div id="cannon-charge-overlay" class="absolute inset-0 bg-black/60 rounded-xl flex items-center justify-center font-mono text-[10px]">
+                                <span id="cannon-charge-pct">0%</span>
+                            </div>
+                        </button>
+                    </div>
+
+                    <!-- Summon Unit Buttons Row -->
+                    <div id="summon-buttons-row" class="grid grid-cols-5 gap-1.5 h-16 sm:h-20">
+                        <!-- Dynamically generated unit cards -->
+                    </div>
+                </div>
+
+                <!-- Battle End Overlay (Victory / Defeat) -->
+                <div id="battle-result-modal" class="hidden absolute inset-0 bg-black/80 flex flex-col items-center justify-center z-30 p-6">
+                    <div class="bg-slate-900 border-4 border-yellow-400 rounded-3xl p-6 text-center max-w-sm w-full flex flex-col items-center shadow-2xl animate-bounce-short">
+                        <h2 id="result-title" class="font-pop text-4xl text-yellow-300 mb-2">完全勝利！</h2>
+                        <p id="result-subtitle" class="text-xs text-slate-300 mb-4">クリネジ城をブレロミームで破壊した！</p>
+                        
+                        <div class="bg-slate-950 p-4 rounded-xl w-full mb-4 border border-yellow-500/30">
+                            <div class="flex justify-between text-sm text-yellow-200 mb-1">
+                                <span>獲得 XP:</span>
+                                <span id="result-xp-gain" class="font-bold text-yellow-400">+500</span>
+                            </div>
+                            <div class="flex justify-between text-sm text-purple-200">
+                                <span>獲得 Gems:</span>
+                                <span id="result-gems-gain" class="font-bold text-purple-400">+20</span>
+                            </div>
+                        </div>
+
+                        <button id="btn-result-finish" class="btn-battle w-full py-3 text-lg font-pop text-white rounded-xl">
+                            次へ進む
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /* --- SOUND SYNTHESIZER (Web Audio API) --- */
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.muted = false;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            playTone(freq, duration, type = 'sine', volume = 0.1) {
+                if (this.muted || !this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = type;
+                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                    gain.gain.setValueAtTime(volume, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + duration);
+                } catch(e){}
+            }
+            spawnSound() {
+                this.init();
+                this.playTone(300, 0.1, 'triangle', 0.15);
+                setTimeout(() => this.playTone(500, 0.15, 'sine', 0.15), 50);
+            }
+            hitSound() {
+                this.init();
+                this.playTone(120, 0.08, 'sawtooth', 0.1);
+            }
+            cannonSound() {
+                this.init();
+                if (!this.ctx) return;
+                try {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.6);
+                    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.6);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start();
+                    osc.stop(this.ctx.currentTime + 0.6);
+                } catch(e){}
+            }
+            victorySound() {
+                this.init();
+                const notes = [261, 329, 392, 523];
+                notes.forEach((f, i) => {
+                    setTimeout(() => this.playTone(f, 0.25, 'triangle', 0.2), i * 120);
+                });
+            }
+        }
+        const audio = new SoundEngine();
+
+        /* --- UNIT & GAME DATA DEFINITIONS --- */
+        const ALL_UNITS = [
+            {
+                id: 'sigma',
+                name: 'シグマくん',
+                title: 'あごラインの開拓者',
+                rarity: 'R',
+                cost: 50,
+                cooldown: 2.5,
+                hp: 120,
+                atk: 25,
+                range: 40,
+                speed: 1.5,
+                color: '#38bdf8',
+                quote: 'SIGMA GRINDSET',
+                unlocked: true,
+                draw: (ctx, x, y, frame) => {
+                    // Sigma Boy procedural vector draw
+                    ctx.save();
+                    ctx.translate(x, y);
+                    // Body
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(-10, -28, 20, 22);
+                    // Head
+                    ctx.fillStyle = '#fde047';
+                    ctx.beginPath();
+                    ctx.arc(0, -35, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Sharp Sigma Jawline
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath();
+                    ctx.moveTo(-8, -32);
+                    ctx.lineTo(0, -20);
+                    ctx.lineTo(8, -32);
+                    ctx.closePath();
+                    ctx.fill();
+                    // Sunglasses
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(-8, -38, 16, 5);
+                    // Legs bobbing
+                    const legOffset = Math.sin(frame * 0.2) * 4;
+                    ctx.strokeStyle = '#0284c7';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(-5, -6); ctx.lineTo(-5 + legOffset, 0);
+                    ctx.moveTo(5, -6); ctx.lineTo(5 - legOffset, 0);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            },
+            {
+                id: 'mewing',
+                name: 'ミューイングネコ',
+                title: '無口な鉄壁ガード',
+                rarity: 'SR',
+                cost: 120,
+                cooldown: 5.0,
+                hp: 450,
+                atk: 15,
+                range: 30,
+                speed: 0.9,
+                color: '#c084fc',
+                quote: '🤫🧏',
+                unlocked: true,
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    // Big round cat body
+                    ctx.fillStyle = '#e9d5ff';
+                    ctx.beginPath();
+                    ctx.arc(0, -24, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Cat ears
+                    ctx.fillStyle = '#a855f7';
+                    ctx.beginPath();
+                    ctx.moveTo(-16, -36); ctx.lineTo(-8, -48); ctx.lineTo(-2, -38);
+                    ctx.moveTo(16, -36); ctx.lineTo(8, -48); ctx.lineTo(2, -38);
+                    ctx.fill();
+                    // Lock-in jaw
+                    ctx.fillStyle = '#d8b4fe';
+                    ctx.beginPath();
+                    ctx.moveTo(-12, -20); ctx.lineTo(0, -8); ctx.lineTo(12, -20);
+                    ctx.fill();
+                    // Hand pointing to jaw 🤫
+                    ctx.fillStyle = '#f43f5e';
+                    ctx.fillRect(4, -18, 6, 8);
+                    ctx.restore();
+                }
+            },
+            {
+                id: 'skibidi',
+                name: 'スキビディ・トイレ',
+                title: '高速突撃ミーム',
+                rarity: 'SR',
+                cost: 180,
+                cooldown: 4.0,
+                hp: 220,
+                atk: 55,
+                range: 45,
+                speed: 2.2,
+                color: '#f43f5e',
+                quote: 'SKIBIDI DOP DOP',
+                unlocked: false,
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    // Toilet Bowl
+                    ctx.fillStyle = '#ffffff';
+                    ctx.beginPath();
+                    ctx.ellipse(0, -12, 16, 12, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillRect(-12, -30, 24, 20);
+                    // Head popping out
+                    const headBob = Math.sin(frame * 0.3) * 3;
+                    ctx.fillStyle = '#ffedd5';
+                    ctx.beginPath();
+                    ctx.arc(0, -32 + headBob, 10, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Face expression
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(-4, -34 + headBob, 3, 3);
+                    ctx.fillRect(2, -34 + headBob, 3, 3);
+                    ctx.restore();
+                }
+            },
+            {
+                id: 'rizzler',
+                name: 'リズラー',
+                title: '魅惑の遠距離サポート',
+                rarity: 'UR',
+                cost: 250,
+                cooldown: 7.0,
+                hp: 200,
+                atk: 40,
+                range: 130,
+                speed: 1.2,
+                color: '#ec4899',
+                quote: 'UNLIMITED RIZZ',
+                unlocked: false,
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    // Rizzler Cloak
+                    ctx.fillStyle = '#db2777';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -40); ctx.lineTo(-15, 0); ctx.lineTo(15, 0);
+                    ctx.fill();
+                    // Smirking Head
+                    ctx.fillStyle = '#fde047';
+                    ctx.beginPath();
+                    ctx.arc(0, -35, 11, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Heart eyes frame
+                    ctx.fillStyle = '#ef4444';
+                    ctx.font = '10px Arial';
+                    ctx.fillText('❤️', -8, -34);
+                    ctx.fillText('❤️', 1, -34);
+                    ctx.restore();
+                }
+            },
+            {
+                id: 'gigachad',
+                name: 'ギガチャッド',
+                title: '絶対的王者フィジカル',
+                rarity: 'UR',
+                cost: 500,
+                cooldown: 12.0,
+                hp: 1200,
+                atk: 220,
+                range: 50,
+                speed: 0.8,
+                color: '#eab308',
+                quote: 'CAN YOU FEEL MY HEART',
+                unlocked: false,
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    // Glowing Chad Aura
+                    ctx.strokeStyle = 'rgba(234, 179, 8, 0.6)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(0, -30, 28, 0, Math.PI * 2);
+                    ctx.stroke();
+                    // Massive Muscles
+                    ctx.fillStyle = '#64748b';
+                    ctx.fillRect(-18, -45, 36, 35);
+                    // Head
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.beginPath();
+                    ctx.arc(0, -52, 12, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Mega Jaw
+                    ctx.fillStyle = '#475569';
+                    ctx.fillRect(-10, -48, 20, 10);
+                    ctx.restore();
+                }
+            },
+            {
+                id: 'fanum',
+                name: 'ファナム・タックス',
+                title: '資金奪取のピザハンター',
+                rarity: 'SR',
+                cost: 140,
+                cooldown: 4.5,
+                hp: 280,
+                atk: 35,
+                range: 35,
+                speed: 1.8,
+                color: '#f97316',
+                quote: 'FANUM TAX!',
+                unlocked: false,
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    // Pizza Ninja Body
+                    ctx.fillStyle = '#ea580c';
+                    ctx.beginPath();
+                    ctx.arc(0, -20, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    // Pizza Slice in hand
+                    ctx.fillStyle = '#eab308';
+                    ctx.beginPath();
+                    ctx.moveTo(8, -25); ctx.lineTo(22, -35); ctx.lineTo(22, -15);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+        ];
+
+        const STAGES = [
+            {
+                id: 1,
+                name: 'TikTok シティ',
+                desc: 'クリネジ老害とNPCが溢れる街',
+                rewardXP: 300,
+                rewardGems: 30,
+                castleHp: 800,
+                enemyWave: [
+                    { time: 2, type: 'boomer' },
+                    { time: 6, type: 'cringe_npc' },
+                    { time: 12, type: 'boomer' },
+                    { time: 20, type: 'boomer_boss', boss: true }
+                ]
+            },
+            {
+                id: 2,
+                name: 'リズ・バレー',
+                desc: 'ミーム耐性の低い強敵たちが登場',
+                rewardXP: 600,
+                rewardGems: 50,
+                castleHp: 1500,
+                enemyWave: [
+                    { time: 2, type: 'cringe_npc' },
+                    { time: 5, type: 'ohio_demon' },
+                    { time: 10, type: 'cringe_npc' },
+                    { time: 18, type: 'ohio_demon', boss: true }
+                ]
+            },
+            {
+                id: 3,
+                name: 'シグマ・マウンテン',
+                desc: '過酷な試練！老害キングの猛攻',
+                rewardXP: 1000,
+                rewardGems: 80,
+                castleHp: 2500,
+                enemyWave: [
+                    { time: 2, type: 'boomer' },
+                    { time: 6, type: 'ohio_demon' },
+                    { time: 12, type: 'boomer_boss' },
+                    { time: 25, type: 'king_boomer_boss', boss: true }
+                ]
+            },
+            {
+                id: 4,
+                name: 'Gyatt ディメンション',
+                desc: '最難関次元！クリネジ軍団の総力戦',
+                rewardXP: 2000,
+                rewardGems: 150,
+                castleHp: 4000,
+                enemyWave: [
+                    { time: 2, type: 'ohio_demon' },
+                    { time: 5, type: 'ohio_demon' },
+                    { time: 10, type: 'king_boomer_boss' },
+                    { time: 20, type: 'king_boomer_boss', boss: true }
+                ]
+            }
+        ];
+
+        const ENEMY_TYPES = {
+            boomer: {
+                name: '老害モブ',
+                hp: 140,
+                atk: 18,
+                range: 35,
+                speed: 1.0,
+                color: '#64748b',
+                text: '昔はなぁ！',
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.fillStyle = '#475569';
+                    ctx.fillRect(-8, -25, 16, 20);
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.beginPath(); ctx.arc(0, -32, 10, 0, Math.PI * 2); ctx.fill();
+                    // Walking stick
+                    ctx.strokeStyle = '#78350f';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath(); ctx.moveTo(-10, -20); ctx.lineTo(-12, 0); ctx.stroke();
+                    ctx.restore();
+                }
+            },
+            cringe_npc: {
+                name: 'クリネジ NPC',
+                hp: 200,
+                atk: 25,
+                range: 40,
+                speed: 1.4,
+                color: '#94a3b8',
+                text: 'NPCダンス',
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillRect(-10, -28, 20, 22);
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.fillRect(-8, -42, 16, 14); // Blocky head
+                    ctx.fillStyle = '#000';
+                    ctx.fillRect(-5, -38, 3, 3); ctx.fillRect(2, -38, 3, 3);
+                    ctx.restore();
+                }
+            },
+            ohio_demon: {
+                name: 'オハイオの魔物',
+                hp: 380,
+                atk: 50,
+                range: 45,
+                speed: 1.7,
+                color: '#ef4444',
+                text: 'ONLY IN OHIO',
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.fillStyle = '#991b1b';
+                    ctx.beginPath(); ctx.arc(0, -24, 18, 0, Math.PI * 2); ctx.fill();
+                    // Red eyes
+                    ctx.fillStyle = '#fef08a';
+                    ctx.fillRect(-8, -28, 5, 5); ctx.fillRect(3, -28, 5, 5);
+                    ctx.restore();
+                }
+            },
+            boomer_boss: {
+                name: '説教ド迫力ボス',
+                hp: 900,
+                atk: 90,
+                range: 60,
+                speed: 0.7,
+                color: '#b45309',
+                text: '最近の若者は！',
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.fillStyle = '#78350f';
+                    ctx.fillRect(-16, -42, 32, 35);
+                    ctx.fillStyle = '#fde047';
+                    ctx.beginPath(); ctx.arc(0, -52, 16, 0, Math.PI*2); ctx.fill();
+                    ctx.restore();
+                }
+            },
+            king_boomer_boss: {
+                name: '皇帝クリネジ王',
+                hp: 2200,
+                atk: 180,
+                range: 70,
+                speed: 0.6,
+                color: '#dc2626',
+                text: 'バズり禁止！！',
+                draw: (ctx, x, y, frame) => {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.fillStyle = '#450a0a';
+                    ctx.fillRect(-22, -55, 44, 45);
+                    ctx.fillStyle = '#f87171';
+                    ctx.beginPath(); ctx.arc(0, -68, 20, 0, Math.PI*2); ctx.fill();
+                    // Crown
+                    ctx.fillStyle = '#eab308';
+                    ctx.beginPath();
+                    ctx.moveTo(-18, -85); ctx.lineTo(-10, -73); ctx.lineTo(0, -88); ctx.lineTo(10, -73); ctx.lineTo(18, -85); ctx.lineTo(15, -68); ctx.lineTo(-15, -68);
+                    ctx.fill();
+                    ctx.restore();
+                }
+            }
+        };
+
+        /* --- GAME STATE ENGINE --- */
+        const gameState = {
+            xp: 200,
+            gems: 100,
+            unlockedUnits: ['sigma', 'mewing'],
+            unitLevels: { sigma: 1, mewing: 1, skibidi: 1, rizzler: 1, gigachad: 1, fanum: 1 },
+            deck: ['sigma', 'mewing'],
+            unlockedStage: 1,
+            currentStage: null,
+
+            save() {
+                localStorage.setItem('brero_battle_save', JSON.stringify({
+                    xp: this.xp,
+                    gems: this.gems,
+                    unlockedUnits: this.unlockedUnits,
+                    unitLevels: this.unitLevels,
+                    deck: this.deck,
+                    unlockedStage: this.unlockedStage
+                }));
+            },
+            load() {
+                const data = localStorage.getItem('brero_battle_save');
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        this.xp = parsed.xp ?? 200;
+                        this.gems = parsed.gems ?? 100;
+                        this.unlockedUnits = parsed.unlockedUnits ?? ['sigma', 'mewing'];
+                        this.unitLevels = parsed.unitLevels ?? { sigma: 1, mewing: 1 };
+                        this.deck = parsed.deck ?? ['sigma', 'mewing'];
+                        this.unlockedStage = parsed.unlockedStage ?? 1;
+                    } catch(e){}
+                }
+                updateTopBar();
+            }
+        };
+
+        function updateTopBar() {
+            document.getElementById('user-xp').innerText = gameState.xp;
+            document.getElementById('user-gems').innerText = gameState.gems;
+        }
+
+        function initTitleParade() {
+            const track = document.getElementById('parade-track');
+            track.innerHTML = '';
+            ALL_UNITS.forEach((unit, idx) => {
+                const div = document.createElement('div');
+                div.className = "inline-flex items-center gap-2 bg-slate-800/80 px-3 py-1.5 rounded-full border border-yellow-400/40 text-xs font-bold";
+                div.innerHTML = `<span style="color:${unit.color}">${unit.name}</span> <span class="text-[10px] text-slate-400">"${unit.quote}"</span>`;
+                track.appendChild(div);
+            });
+            // Auto scroll loop
+            let pos = 0;
+            setInterval(() => {
+                pos -= 1;
+                if (pos < -400) pos = 0;
+                track.style.transform = `translateX(${pos}px)`;
+            }, 30);
+        }
+
+        function renderStages() {
+            const container = document.getElementById('stage-list');
+            container.innerHTML = '';
+            STAGES.forEach(stg => {
+                const isLocked = stg.id > gameState.unlockedStage;
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-2xl border-2 flex justify-between items-center ${isLocked ? 'bg-slate-900/50 border-slate-700 opacity-60' : 'bg-slate-800 border-yellow-400 hover:border-yellow-200 cursor-pointer shadow-lg'}`;
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-pop text-lg ${isLocked ? 'text-slate-500' : 'text-yellow-300'}">STAGE ${stg.id}: ${stg.name}</span>
+                            ${isLocked ? '<i class="fa-solid fa-lock text-slate-500"></i>' : ''}
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1">${stg.desc}</p>
+                        <div class="flex gap-3 text-[11px] text-slate-400 mt-2">
+                            <span>報酬 XP: <strong class="text-yellow-400">+${stg.rewardXP}</strong></span>
+                            <span>Gems: <strong class="text-purple-400">+${stg.rewardGems}</strong></span>
+                        </div>
+                    </div>
+                    ${!isLocked ? `<button class="btn-battle px-4 py-2 font-pop text-sm text-white rounded-xl">出撃</button>` : ''}
+                `;
+                if (!isLocked) {
+                    card.onclick = () => startBattle(stg);
+                }
+                container.appendChild(card);
+            });
+        }
+
+        function renderUpgradeScreen() {
+            // Deck Slots Render
+            const deckContainer = document.getElementById('deck-slots');
+            deckContainer.innerHTML = '';
+            for (let i = 0; i < 5; i++) {
+                const slot = document.createElement('div');
+                slot.className = "cat-frame rounded-xl flex flex-col items-center justify-center relative cursor-pointer overflow-hidden";
+                if (gameState.deck[i]) {
+                    const unit = ALL_UNITS.find(u => u.id === gameState.deck[i]);
+                    const lvl = gameState.unitLevels[unit.id] || 1;
+                    slot.innerHTML = `
+                        <span class="text-xs font-bold" style="color:${unit.color}">${unit.name}</span>
+                        <span class="text-[10px] text-yellow-300 font-mono">Lv.${lvl}</span>
+                        <div class="absolute top-0 right-0 bg-red-600 text-white text-[9px] px-1 rounded-bl">x</div>
+                    `;
+                    slot.onclick = () => {
+                        gameState.deck.splice(i, 1);
+                        gameState.save();
+                        renderUpgradeScreen();
+                    };
+                } else {
+                    slot.innerHTML = `<span class="text-xs text-slate-500 font-bold">空き</span>`;
+                }
+                deckContainer.appendChild(slot);
+            }
+
+            // Collection List
+            const collContainer = document.getElementById('unit-collection');
+            collContainer.innerHTML = '';
+            ALL_UNITS.forEach(unit => {
+                const isUnlocked = gameState.unlockedUnits.includes(unit.id);
+                const isEquipped = gameState.deck.includes(unit.id);
+                const lvl = gameState.unitLevels[unit.id] || 1;
+                const upgradeCost = lvl * 150;
+
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border flex justify-between items-center ${isUnlocked ? 'bg-slate-900 border-purple-500/50' : 'bg-slate-950/60 border-slate-800 opacity-60'}`;
+                
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl cat-frame flex items-center justify-center font-bold text-lg" style="color:${unit.color}">
+                            ${unit.name[0]}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-sm text-yellow-200">${unit.name}</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-purple-900 text-purple-200 border border-purple-400 font-mono">${unit.rarity}</span>
+                                ${isUnlocked ? `<span class="text-xs text-cyan-300 font-mono font-bold">Lv.${lvl}</span>` : ''}
+                            </div>
+                            <p class="text-[10px] text-slate-400">${unit.title}</p>
+                            ${isUnlocked ? `<div class="text-[10px] text-yellow-400 mt-0.5">HP: ${Math.round(unit.hp * (1 + (lvl-1)*0.1))} / ATK: ${Math.round(unit.atk * (1 + (lvl-1)*0.1))}</div>` : '<span class="text-[10px] text-red-400">未解放 (ガチャで獲得)</span>'}
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1 items-end">
+                        ${isUnlocked ? `
+                            <button class="btn-upgrade-unit bg-amber-600 hover:bg-amber-500 border border-white text-white text-[10px] font-bold px-2 py-1 rounded-lg" data-id="${unit.id}">
+                                強化 (${upgradeCost} XP)
+                            </button>
+                            <button class="btn-equip-unit ${isEquipped ? 'bg-slate-700 text-slate-400' : 'bg-blue-600 hover:bg-blue-500 text-white'} text-[10px] font-bold px-2 py-1 rounded-lg" data-id="${unit.id}">
+                                ${isEquipped ? 'セット中' : '編成'}
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+
+                collContainer.appendChild(card);
+            });
+
+            // Bind upgrade/equip listeners
+            document.querySelectorAll('.btn-upgrade-unit').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    const lvl = gameState.unitLevels[id] || 1;
+                    const cost = lvl * 150;
+                    if (gameState.xp >= cost) {
+                        gameState.xp -= cost;
+                        gameState.unitLevels[id] = lvl + 1;
+                        gameState.save();
+                        updateTopBar();
+                        renderUpgradeScreen();
+                        audio.spawnSound();
+                    }
+                };
+            });
+
+            document.querySelectorAll('.btn-equip-unit').forEach(btn => {
+                btn.onclick = (e) => {
+                    const id = e.target.getAttribute('data-id');
+                    if (gameState.deck.includes(id)) return;
+                    if (gameState.deck.length >= 5) {
+                        gameState.deck.shift(); // replace oldest
+                    }
+                    gameState.deck.push(id);
+                    gameState.save();
+                    renderUpgradeScreen();
+                };
+            });
+        }
+
+        function initGacha() {
+            const rollBtn = document.getElementById('btn-roll-gacha');
+            const modal = document.getElementById('gacha-result-modal');
+            const closeBtn = document.getElementById('btn-close-gacha-res');
+
+            rollBtn.onclick = () => {
+                if (gameState.gems < 100) {
+                    showNoticeModal("Gems不足", "100 Gems必要です！ステージをクリアして集めよう！");
+                    return;
+                }
+                gameState.gems -= 100;
+                gameState.save();
+                updateTopBar();
+
+                audio.cannonSound();
+
+                // Pick random unit (higher chance for locked ones)
+                const locked = ALL_UNITS.filter(u => !gameState.unlockedUnits.includes(u.id));
+                let pool = locked.length > 0 && Math.random() < 0.7 ? locked : ALL_UNITS;
+                const pulled = pool[Math.floor(Math.random() * pool.length)];
+
+                if (!gameState.unlockedUnits.includes(pulled.id)) {
+                    gameState.unlockedUnits.push(pulled.id);
+                } else {
+                    // Give XP bonus for duplicate
+                    gameState.xp += 300;
+                }
+                gameState.save();
+
+                // Show visual result
+                document.getElementById('gacha-rarity-badge').innerText = pulled.rarity;
+                document.getElementById('gacha-result-name').innerText = pulled.name;
+                document.getElementById('gacha-result-desc').innerText = `"${pulled.quote}" - ${pulled.title}`;
+                modal.classList.remove('hidden');
+            };
+
+            closeBtn.onclick = () => {
+                modal.classList.add('hidden');
+            };
+        }
+
+        function showNoticeModal(title, msg) {
+            const el = document.createElement('div');
+            el.className = "fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4";
+            el.innerHTML = `
+                <div class="bg-slate-900 border-2 border-yellow-400 p-6 rounded-2xl max-w-xs text-center shadow-2xl">
+                    <h3 class="font-pop text-xl text-yellow-300 mb-2">${title}</h3>
+                    <p class="text-xs text-slate-300 mb-4">${msg}</p>
+                    <button onclick="this.parentElement.parentElement.remove()" class="btn-battle px-6 py-2 text-sm font-pop text-white rounded-xl">OK</button>
+                </div>
+            `;
+            document.body.appendChild(el);
+        }
+
+        /* --- BATTLE ENGINE & CANVAS RENDERER --- */
+        let battleEngine = null;
+
+        class BattleEngine {
+            constructor(stage) {
+                this.stage = stage;
+                this.canvas = document.getElementById('battle-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                
+                // Adjust size
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+
+                // Mechanics
+                this.playerCastleHp = 1000;
+                this.playerCastleMaxHp = 1000;
+                this.enemyCastleHp = stage.castleHp;
+                this.enemyCastleMaxHp = stage.castleHp;
+
+                // Worker / $BR
+                this.workerLevel = 1;
+                this.brCurrent = 0;
+                this.brMax = 100;
+                this.brRate = 12; // per sec
+
+                // Cannon
+                this.cannonCharge = 0; // 0 to 100
+                this.cannonFiring = false;
+
+                // Units & Entities
+                this.playerUnits = [];
+                this.enemyUnits = [];
+                this.particles = [];
+                this.floatingTexts = [];
+
+                // Timers & Waves
+                this.cooldowns = {};
+                this.frame = 0;
+                this.battleTime = 0;
+                this.waveIndex = 0;
+                this.isGameOver = false;
+
+                // Spawning Initial Setup
+                this.initSummonButtons();
+            }
+
+            resizeCanvas() {
+                const rect = this.canvas.parentElement.getBoundingClientRect();
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height - 110; // Reserve room for bottom HUD
+                this.groundY = this.canvas.height - 30;
+            }
+
+            initSummonButtons() {
+                const container = document.getElementById('summon-buttons-row');
+                container.innerHTML = '';
+                
+                gameState.deck.forEach((unitId, index) => {
+                    const unit = ALL_UNITS.find(u => u.id === unitId);
+                    const lvl = gameState.unitLevels[unitId] || 1;
+                    const btn = document.createElement('button');
+                    btn.id = `summon-btn-${unit.id}`;
+                    btn.className = "cat-frame rounded-xl relative flex flex-col items-center justify-center p-1 cursor-pointer overflow-hidden disabled:opacity-50";
+                    btn.innerHTML = `
+                        <span class="text-[11px] font-bold truncate w-full text-center" style="color:${unit.color}">${unit.name}</span>
+                        <span class="text-[10px] text-yellow-300 font-mono font-bold">$BR ${unit.cost}</span>
+                        <div id="cooldown-overlay-${unit.id}" class="absolute inset-0 bg-black/70 hidden flex items-center justify-center font-mono text-xs text-yellow-400 font-bold"></div>
+                    `;
+                    btn.onclick = () => this.summonPlayerUnit(unit);
+                    container.appendChild(btn);
+                    this.cooldowns[unit.id] = 0;
+                });
+            }
+
+            summonPlayerUnit(unit) {
+                if (this.brCurrent < unit.cost || this.cooldowns[unit.id] > 0 || this.isGameOver) return;
+
+                this.brCurrent -= unit.cost;
+                this.cooldowns[unit.id] = unit.cooldown;
+                
+                const lvl = gameState.unitLevels[unit.id] || 1;
+                const statMult = 1 + (lvl - 1) * 0.1;
+
+                this.playerUnits.push({
+                    id: unit.id,
+                    name: unit.name,
+                    x: 60,
+                    y: this.groundY,
+                    hp: unit.hp * statMult,
+                    maxHp: unit.hp * statMult,
+                    atk: unit.atk * statMult,
+                    range: unit.range,
+                    speed: unit.speed,
+                    color: unit.color,
+                    draw: unit.draw,
+                    quote: unit.quote,
+                    atkTimer: 0,
+                    knockbackX: 0
+                });
+
+                audio.spawnSound();
+                this.addFloatingText("SUMMON!", 60, this.groundY - 40, '#38bdf8');
+            }
+
+            spawnEnemy(typeKey) {
+                const spec = ENEMY_TYPES[typeKey] || ENEMY_TYPES.boomer;
+                this.enemyUnits.push({
+                    type: typeKey,
+                    name: spec.name,
+                    x: this.canvas.width - 60,
+                    y: this.groundY,
+                    hp: spec.hp,
+                    maxHp: spec.hp,
+                    atk: spec.atk,
+                    range: spec.range,
+                    speed: spec.speed,
+                    color: spec.color,
+                    draw: spec.draw,
+                    text: spec.text,
+                    atkTimer: 0,
+                    knockbackX: 0
+                });
+            }
+
+            update(dt) {
+                if (this.isGameOver) return;
+
+                this.frame++;
+                this.battleTime += dt;
+
+                // Generate $BR
+                this.brCurrent = Math.min(this.brMax, this.brCurrent + (this.brRate * dt));
+
+                // Cannon Charge
+                if (this.cannonCharge < 100) {
+                    this.cannonCharge = Math.min(100, this.cannonCharge + 8 * dt);
+                }
+
+                // Wave Spawner
+                const wave = this.stage.enemyWave;
+                if (this.waveIndex < wave.length) {
+                    if (this.battleTime >= wave[this.waveIndex].time) {
+                        this.spawnEnemy(wave[this.waveIndex].type);
+                        this.waveIndex++;
+                    }
+                }
+
+                // Cooldowns update
+                Object.keys(this.cooldowns).forEach(id => {
+                    if (this.cooldowns[id] > 0) {
+                        this.cooldowns[id] = Math.max(0, this.cooldowns[id] - dt);
+                    }
+                });
+
+                // Update Player Units
+                this.playerUnits.forEach(u => {
+                    // Recover knockback
+                    if (u.knockbackX > 0) u.knockbackX = Math.max(0, u.knockbackX - 4);
+
+                    // Find nearest enemy or base
+                    let target = null;
+                    let targetDist = this.canvas.width - u.x - 60; // Base distance
+
+                    this.enemyUnits.forEach(e => {
+                        const d = e.x - u.x;
+                        if (d > 0 && d < targetDist) {
+                            targetDist = d;
+                            target = e;
+                        }
+                    });
+
+                    if (targetDist <= u.range) {
+                        // Attack
+                        u.atkTimer += dt;
+                        if (u.atkTimer >= 1.2) {
+                            u.atkTimer = 0;
+                            if (target) {
+                                target.hp -= u.atk;
+                                target.knockbackX = 15;
+                                this.addFloatingText(`${Math.round(u.atk)}`, target.x, target.y - 30, '#f43f5e');
+                                if (Math.random() < 0.3) this.addFloatingText(u.quote, u.x, u.y - 40, u.color);
+                                audio.hitSound();
+                            } else {
+                                // Damage Enemy Base
+                                this.enemyCastleHp = Math.max(0, this.enemyCastleHp - u.atk);
+                                this.addFloatingText(`${Math.round(u.atk)}`, this.canvas.width - 60, this.groundY - 50, '#f43f5e');
+                            }
+                        }
+                    } else {
+                        // Walk
+                        u.x += u.speed;
+                    }
+                });
+
+                // Update Enemy Units
+                this.enemyUnits.forEach(e => {
+                    if (e.knockbackX > 0) e.knockbackX = Math.max(0, e.knockbackX - 4);
+
+                    let target = null;
+                    let targetDist = e.x - 60; // Distance to player base
+
+                    this.playerUnits.forEach(u => {
+                        const d = e.x - u.x;
+                        if (d > 0 && d < targetDist) {
+                            targetDist = d;
+                            target = u;
+                        }
+                    });
+
+                    if (targetDist <= e.range) {
+                        e.atkTimer += dt;
+                        if (e.atkTimer >= 1.2) {
+                            e.atkTimer = 0;
+                            if (target) {
+                                target.hp -= e.atk;
+                                target.knockbackX = 15;
+                                this.addFloatingText(`${Math.round(e.atk)}`, target.x, target.y - 30, '#fbbf24');
+                            } else {
+                                // Damage Player Base
+                                this.playerCastleHp = Math.max(0, this.playerCastleHp - e.atk);
+                                this.addFloatingText(`${Math.round(e.atk)}`, 60, this.groundY - 50, '#ef4444');
+                            }
+                        }
+                    } else {
+                        e.x -= e.speed;
+                    }
+                });
+
+                // Filter Dead Units
+                this.playerUnits = this.playerUnits.filter(u => u.hp > 0);
+                this.enemyUnits = this.enemyUnits.filter(e => {
+                    if (e.hp <= 0) {
+                        // Bounty $BR
+                        this.brCurrent = Math.min(this.brMax, this.brCurrent + 30);
+                        this.addFloatingText("+$30 BR", e.x, e.y - 20, '#facc15');
+                        return false;
+                    }
+                    return true;
+                });
+
+                // Update Floating Texts
+                this.floatingTexts.forEach(t => {
+                    t.y -= 0.8;
+                    t.alpha -= 0.02;
+                });
+                this.floatingTexts = this.floatingTexts.filter(t => t.alpha > 0);
+
+                // Win / Loss Conditions
+                if (this.enemyCastleHp <= 0) {
+                    this.triggerVictory();
+                } else if (this.playerCastleHp <= 0) {
+                    this.triggerDefeat();
+                }
+
+                this.updateHUD();
+            }
+
+            fireBrainrotCannon() {
+                if (this.cannonCharge < 100) return;
+                this.cannonCharge = 0;
+                audio.cannonSound();
+
+                // Screen Laser Wave
+                this.cannonFiring = true;
+                setTimeout(() => this.cannonFiring = false, 800);
+
+                // Knockback & damage ALL enemies
+                this.enemyUnits.forEach(e => {
+                    e.hp -= 200;
+                    e.x = Math.min(this.canvas.width - 70, e.x + 120);
+                    this.addFloatingText("CANNON BLAST!", e.x, e.y - 40, '#a855f7');
+                });
+            }
+
+            addFloatingText(text, x, y, color) {
+                this.floatingTexts.push({ text, x, y, color, alpha: 1.0 });
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Background Gradient
+                const bgGrad = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+                bgGrad.addColorStop(0, '#020617');
+                bgGrad.addColorStop(1, '#0f172a');
+                this.ctx.fillStyle = bgGrad;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+                // Battlefield Ground Line
+                this.ctx.fillStyle = '#1e293b';
+                this.ctx.fillRect(0, this.groundY, this.canvas.width, this.canvas.height - this.groundY);
+                this.ctx.strokeStyle = '#3b82f6';
+                this.ctx.lineWidth = 2;
+                this.ctx.beginPath();
+                this.ctx.moveTo(0, this.groundY);
+                this.ctx.lineTo(this.canvas.width, this.groundY);
+                this.ctx.stroke();
+
+                // Draw Player Base (Sigma Castle)
+                this.drawCastle(40, this.groundY, '#0284c7', 'シグマ城');
+
+                // Draw Enemy Base (Cringe Castle)
+                this.drawCastle(this.canvas.width - 40, this.groundY, '#dc2626', 'クリネジ城');
+
+                // Draw Player Units
+                this.playerUnits.forEach(u => {
+                    u.draw(this.ctx, u.x - u.knockbackX, u.y, this.frame);
+                    this.drawHpBar(u.x - u.knockbackX, u.y - 50, u.hp, u.maxHp);
+                });
+
+                // Draw Enemy Units
+                this.enemyUnits.forEach(e => {
+                    e.draw(this.ctx, e.x + e.knockbackX, e.y, this.frame);
+                    this.drawHpBar(e.x + e.knockbackX, e.y - 50, e.hp, e.maxHp);
+                });
+
+                // Draw Cannon Beam Effect
+                if (this.cannonFiring) {
+                    this.ctx.save();
+                    this.ctx.fillStyle = 'rgba(216, 70, 239, 0.4)';
+                    this.ctx.fillRect(40, this.groundY - 80, this.canvas.width, 80);
+                    this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    this.ctx.fillRect(40, this.groundY - 50, this.canvas.width, 20);
+                    this.ctx.restore();
+                }
+
+                // Draw Floating Damage Texts
+                this.floatingTexts.forEach(t => {
+                    this.ctx.save();
+                    this.ctx.globalAlpha = t.alpha;
+                    this.ctx.font = '900 14px "Mochiy Pop One", sans-serif';
+                    this.ctx.fillStyle = t.color;
+                    this.ctx.fillText(t.text, t.x - 15, t.y);
+                    this.ctx.restore();
+                });
+            }
+
+            drawCastle(x, y, color, label) {
+                this.ctx.save();
+                this.ctx.fillStyle = color;
+                this.ctx.fillRect(x - 30, y - 90, 60, 90);
+                this.ctx.fillStyle = '#000';
+                this.ctx.fillRect(x - 10, y - 30, 20, 30);
+                this.ctx.fillStyle = '#fff';
+                this.ctx.font = '10px sans-serif';
+                this.ctx.fillText(label, x - 20, y - 95);
+                this.ctx.restore();
+            }
+
+            drawHpBar(x, y, hp, maxHp) {
+                const width = 26;
+                const pct = Math.max(0, hp / maxHp);
+                this.ctx.save();
+                this.ctx.fillStyle = 'rgba(0,0,0,0.6)';
+                this.ctx.fillRect(x - width/2, y, width, 4);
+                this.ctx.fillStyle = pct > 0.5 ? '#22c55e' : '#ef4444';
+                this.ctx.fillRect(x - width/2, y, width * pct, 4);
+                this.ctx.restore();
+            }
+
+            updateHUD() {
+                // Castle HP Text & Bars
+                document.getElementById('player-castle-hp-text').innerText = `${Math.round(this.playerCastleHp)}/${this.playerCastleMaxHp}`;
+                document.getElementById('player-castle-hp-bar').style.width = `${(this.playerCastleHp/this.playerCastleMaxHp)*100}%`;
+
+                document.getElementById('enemy-castle-hp-text').innerText = `${Math.round(this.enemyCastleHp)}/${this.enemyCastleMaxHp}`;
+                document.getElementById('enemy-castle-hp-bar').style.width = `${(this.enemyCastleHp/this.enemyCastleMaxHp)*100}%`;
+
+                // $BR Display
+                document.getElementById('br-current').innerText = Math.floor(this.brCurrent);
+                document.getElementById('br-max').innerText = this.brMax;
+                document.getElementById('worker-cost').innerText = this.workerLevel * 50;
+
+                // Cannon Charge
+                const pct = Math.floor(this.cannonCharge);
+                document.getElementById('cannon-charge-pct').innerText = `${pct}%`;
+                const cannonBtn = document.getElementById('btn-fire-cannon');
+                if (pct >= 100) {
+                    cannonBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    document.getElementById('cannon-charge-overlay').classList.add('hidden');
+                } else {
+                    cannonBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                    document.getElementById('cannon-charge-overlay').classList.remove('hidden');
+                }
+
+                // Cooldown Overlays on Summon Buttons
+                gameState.deck.forEach(unitId => {
+                    const cd = this.cooldowns[unitId] || 0;
+                    const overlay = document.getElementById(`cooldown-overlay-${unitId}`);
+                    const btn = document.getElementById(`summon-btn-${unitId}`);
+                    const unit = ALL_UNITS.find(u => u.id === unitId);
+
+                    if (overlay) {
+                        if (cd > 0) {
+                            overlay.classList.remove('hidden');
+                            overlay.innerText = cd.toFixed(1);
+                        } else {
+                            overlay.classList.add('hidden');
+                        }
+                    }
+
+                    if (btn) {
+                        if (this.brCurrent < unit.cost || cd > 0) {
+                            btn.disabled = true;
+                        } else {
+                            btn.disabled = false;
+                        }
+                    }
+                });
+            }
+
+            upgradeWorker() {
+                const cost = this.workerLevel * 50;
+                if (this.brCurrent >= cost && this.workerLevel < 8) {
+                    this.brCurrent -= cost;
+                    this.workerLevel++;
+                    this.brMax += 100;
+                    this.brRate += 6;
+                    audio.spawnSound();
+                }
+            }
+
+            triggerVictory() {
+                this.isGameOver = true;
+                audio.victorySound();
+                
+                gameState.xp += this.stage.rewardXP;
+                gameState.gems += this.stage.rewardGems;
+                if (this.stage.id === gameState.unlockedStage && gameState.unlockedStage < STAGES.length) {
+                    gameState.unlockedStage++;
+                }
+                gameState.save();
+                updateTopBar();
+
+                document.getElementById('result-title').innerText = "完全勝利！";
+                document.getElementById('result-subtitle').innerText = "クリネジ城を解体しミームの頂点に立った！";
+                document.getElementById('result-xp-gain').innerText = `+${this.stage.rewardXP}`;
+                document.getElementById('result-gems-gain').innerText = `+${this.stage.rewardGems}`;
+                document.getElementById('battle-result-modal').classList.remove('hidden');
+            }
+
+            triggerDefeat() {
+                this.isGameOver = true;
+                document.getElementById('result-title').innerText = "敗北...";
+                document.getElementById('result-subtitle').innerText = "老害クリネジパワーに屈してしまった...";
+                document.getElementById('result-xp-gain').innerText = "+0";
+                document.getElementById('result-gems-gain').innerText = "+0";
+                document.getElementById('battle-result-modal').classList.remove('hidden');
+            }
+        }
+
+        // Screen Navigation Logic
+        function showScreen(screenId) {
+            ['screen-title', 'screen-map', 'screen-upgrade', 'screen-gacha', 'screen-battle'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        document.getElementById('btn-start-game').onclick = () => {
+            renderStages();
+            showScreen('screen-map');
+        };
+
+        document.getElementById('btn-open-upgrade').onclick = () => {
+            renderUpgradeScreen();
+            showScreen('screen-upgrade');
+        };
+
+        document.getElementById('btn-open-gacha').onclick = () => {
+            showScreen('screen-gacha');
+        };
+
+        document.querySelectorAll('.btn-back-main').forEach(btn => {
+            btn.onclick = () => showScreen('screen-title');
+        });
+
+        document.getElementById('sound-toggle').onclick = () => {
+            audio.muted = !audio.muted;
+            document.getElementById('sound-icon').className = audio.muted ? 'fa-solid fa-volume-xmark text-red-400' : 'fa-solid fa-volume-high text-yellow-400';
+        };
+
+        function startBattle(stage) {
+            showScreen('screen-battle');
+            document.getElementById('battle-stage-title').innerText = `STAGE ${stage.id}: ${stage.name}`;
+            document.getElementById('battle-result-modal').classList.add('hidden');
+
+            battleEngine = new BattleEngine(stage);
+
+            // Bind HUD events
+            document.getElementById('btn-upgrade-worker').onclick = () => battleEngine.upgradeWorker();
+            document.getElementById('btn-fire-cannon').onclick = () => battleEngine.fireBrainrotCannon();
+            document.getElementById('btn-result-finish').onclick = () => {
+                showScreen('screen-map');
+                renderStages();
+            };
+
+            // Main Battle Loop
+            let lastTime = performance.now();
+            function battleLoop(now) {
+                if (!battleEngine || battleEngine.isGameOver) return;
+                const dt = Math.min((now - lastTime) / 1000, 0.1);
+                lastTime = now;
+
+                battleEngine.update(dt);
+                battleEngine.draw();
+
+                requestAnimationFrame(battleLoop);
+            }
+            requestAnimationFrame(battleLoop);
+        }
+
+        window.onload = () => {
+            gameState.load();
+            initTitleParade();
+            initGacha();
+        };
+    </script>
+</body>
+</html>
